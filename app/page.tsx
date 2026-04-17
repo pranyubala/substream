@@ -33,7 +33,7 @@ export default function LandingPage() {
               Launch Dashboard <ArrowRight className="w-5 h-5" />
             </Link>
             <a 
-              href="https://github.com" 
+              href="https://github.com/pranyubala/substream" 
               target="_blank"
               rel="noreferrer"
               className="w-full sm:w-auto px-8 py-4 bg-zinc-900 border border-zinc-800 text-white rounded-full font-bold text-lg hover:bg-zinc-800 transition-colors flex items-center justify-center gap-2"

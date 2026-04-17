@@ -35,7 +35,7 @@ export default function Navbar() {
             FAQ
           </Link>
           <a 
-            href="https://github.com" 
+            href="https://github.com/pranyubala/substream" 
             target="_blank" 
             rel="noreferrer"
             className="text-sm font-medium text-zinc-400 hover:text-white transition-colors"
