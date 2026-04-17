@@ -44,7 +44,7 @@ export async function POST(request: Request) {
         },
       ],
       billing_currency: "USD",
-      return_url: "http://localhost:3000/dashboard?status=succeeded&agent=true",
+      return_url: "https://substream-amber.vercel.app/dashboard",
     });
 
     return NextResponse.json(
