@@ -46,7 +46,28 @@ AI agents can:
 > This unlocks a new model where AI can earn, transact, and operate independently.
 
 ---
+# ⚡ How It Works (Simple Flow)
 
+SubStream makes global payments seamless in 3 steps:
+
+1. **Create Payment**
+   - A freelancer or AI agent generates a payment link
+
+2. **Client Pays in Fiat**
+   - The client pays using a credit card or local payment method via Dodo Payments
+
+3. **Instant Crypto Settlement**
+   - Funds are verified and instantly settled as USDC on Solana to the recipient’s wallet
+
+---
+
+### 🤖 AI Flow (x402)
+
+1. AI agent requests payment  
+2. User receives a payment link  
+3. After payment, the AI completes its task  
+
+> This enables AI to monetize work autonomously.
 # 🧠 Key Technical Components
 
 Building a fiat-to-crypto bridge requires synchronizing Web2 and Web3 systems.
