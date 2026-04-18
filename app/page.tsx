@@ -185,7 +185,7 @@ export default function LandingPage() {
             </div>
             <span className="font-semibold text-sm tracking-wide">SubStream &copy; 2026</span>
           </div>
-          <p className="text-sm text-zinc-500 font-medium">Engineered for the Global Solana Hackathon</p>
+          <p className="text-sm text-zinc-500 font-medium">Fiat infrastructure by Dodo Payments</p>
         </div>
       </footer>
 
