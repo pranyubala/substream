@@ -52,13 +52,16 @@ export async function GET(request: Request) {
         );
       }
 
-      const fiatAmountPaid = payment.total_amount / 100; 
-      const amountInMicroUSDC = fiatAmountPaid * 1000000;
+const baseAmountInCents = Math.round(payment.total_amount / 1.18);
+
+const fiatAmountPaid = baseAmountInCents / 100;
+
+const amountInMicroUSDC = fiatAmountPaid * 1000000;
 
       
       transaction.add(
         createTransferInstruction(
-          senderATA,
+          senderATA,   
           receiverATA,
           treasuryWallet.publicKey,
           amountInMicroUSDC
