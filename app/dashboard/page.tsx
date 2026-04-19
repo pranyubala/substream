@@ -23,62 +23,72 @@ export default function Dashboard() {
     setIsMounted(true);
   }, []);
 
-  useEffect(() => {
+ useEffect(() => {
     const savedInvoices = localStorage.getItem("substream_v2");
     let loadedInvoices = savedInvoices ? JSON.parse(savedInvoices) : [];
 
-    const verifyPayment = async () => {
-      if (typeof window !== "undefined") {
-        const urlParams = new URLSearchParams(window.location.search);
-        const dodoPaymentId = urlParams.get("payment_id");
+    // Set initial load state right away so the UI doesn't look empty
+    setInvoices(loadedInvoices);
+    setIsLoaded(true);
+
+    if (typeof window === "undefined") return;
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const dodoPaymentId = urlParams.get("payment_id");
+
+    if (!dodoPaymentId) return;
+
+    const activeInvoiceId = localStorage.getItem("active_invoice");
+    let pendingIndex = activeInvoiceId
+      ? loadedInvoices.findIndex((inv: any) => inv.id === activeInvoiceId)
+      : loadedInvoices.findIndex((inv: any) => inv.status === "pending");
+
+    if (pendingIndex === -1) return;
+
+    const checkPaymentInterval = setInterval(async () => {
+      try {
+        const userWalletStr = publicKey ? publicKey.toBase58() : "";
+        const timestamp = Date.now(); // The ultimate cache-buster
         
-        if (dodoPaymentId) {
-          const activeInvoiceId = localStorage.getItem("active_invoice");
-          let pendingIndex = -1;
+        const res = await fetch(`/api/check-status?id=${dodoPaymentId}&wallet=${userWalletStr}&t=${timestamp}`, { cache: "no-store" });
+        const data = await res.json();
 
-          if (activeInvoiceId) {
-            pendingIndex = loadedInvoices.findIndex((inv: any) => inv.id === activeInvoiceId);
-          } else {
-            pendingIndex = loadedInvoices.findIndex((inv: any) => inv.status === "pending");
-          }
-          
-          if (pendingIndex !== -1) {
-            try {
-              
-              const userWalletStr = publicKey ? publicKey.toBase58() : "";
-              const res = await fetch(`/api/check-status?id=${dodoPaymentId}&wallet=${userWalletStr}`);
-              const data = await res.json();
-
-              if (data.status === "succeeded") {
-                loadedInvoices[pendingIndex].status = "paid";
-                loadedInvoices[pendingIndex].id = dodoPaymentId;
-                
-                if (data.hash) {
-                  loadedInvoices[pendingIndex].hash = data.hash;
-                }
-
-              } else if (data.status === "expired" || data.status === "failed" || data.status === "canceled") {
-                loadedInvoices[pendingIndex].status = data.status;
-                loadedInvoices[pendingIndex].id = dodoPaymentId;
-              }
-              
-              localStorage.setItem("substream_v2", JSON.stringify(loadedInvoices));
-              localStorage.removeItem("active_invoice");
-            } catch (error) {
-              console.error("Failed to verify payment:", error);
-            }
-          }
-          
-          window.history.replaceState({}, document.title, window.location.pathname);
-        }
-      }
       
-      setInvoices(loadedInvoices);
-      setIsLoaded(true);
-    };
+        if (data.status === "succeeded") {
+          loadedInvoices[pendingIndex].status = "paid";
+          loadedInvoices[pendingIndex].id = dodoPaymentId;
+          
+          if (data.hash) {
+            loadedInvoices[pendingIndex].hash = data.hash;
+          }
 
-    verifyPayment();
-  }, [publicKey]); 
+          localStorage.setItem("substream_v2", JSON.stringify(loadedInvoices));
+          localStorage.removeItem("active_invoice");
+          setInvoices([...loadedInvoices]); // Force UI update
+          window.history.replaceState({}, document.title, window.location.pathname);
+          
+          clearInterval(checkPaymentInterval); // Stop checking!
+          
+        } else if (data.status === "expired" || data.status === "failed" || data.status === "canceled") {
+          loadedInvoices[pendingIndex].status = data.status;
+          loadedInvoices[pendingIndex].id = dodoPaymentId;
+          
+          localStorage.setItem("substream_v2", JSON.stringify(loadedInvoices));
+          localStorage.removeItem("active_invoice");
+          setInvoices([...loadedInvoices]); // Force UI update
+          window.history.replaceState({}, document.title, window.location.pathname);
+          
+          clearInterval(checkPaymentInterval); // Stop checking!
+        }
+        
+      
+      } catch (error) {
+        console.error("Failed to verify payment:", error);
+      }
+    }, 2000); 
+    
+    return () => clearInterval(checkPaymentInterval);
+  }, [publicKey]);
 
   useEffect(() => {
     if (isLoaded) {

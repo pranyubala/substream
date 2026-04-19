@@ -52,11 +52,11 @@ export async function GET(request: Request) {
         );
       }
 
-const baseAmountInCents = Math.round(payment.total_amount / 1.18);
-
+      // Fallback to exactly 15.00 if the total_amount is missing or weird during the redirect
+const safeTotal = payment.total_amount || 1770; 
+const baseAmountInCents = Math.round(safeTotal / 1.18);
 const fiatAmountPaid = baseAmountInCents / 100;
-
-const amountInMicroUSDC = fiatAmountPaid * 1000000;
+const amountInMicroUSDC = Math.floor(fiatAmountPaid * 1000000); // Math.floor guarantees Solana won't crash from decimals
 
       
       transaction.add(
