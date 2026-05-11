@@ -16,14 +16,13 @@ export default function Dashboard() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [isMounted, setIsMounted] = useState(false); 
 
-  
   const { wallet, connected, select, publicKey } = useWallet();
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
- useEffect(() => {
+  useEffect(() => {
     const savedInvoices = localStorage.getItem("substream_v2");
     let loadedInvoices = savedInvoices ? JSON.parse(savedInvoices) : [];
 
@@ -38,9 +37,11 @@ export default function Dashboard() {
     if (!dodoPaymentId) return;
 
     const activeInvoiceId = localStorage.getItem("active_invoice");
-    let pendingIndex = activeInvoiceId
-      ? loadedInvoices.findIndex((inv: any) => inv.id === activeInvoiceId)
-      : loadedInvoices.findIndex((inv: any) => inv.status === "pending");
+    
+    
+    if (!activeInvoiceId) return;
+
+    let pendingIndex = loadedInvoices.findIndex((inv: any) => inv.id === activeInvoiceId);
 
     if (pendingIndex === -1) return;
 
@@ -52,7 +53,6 @@ export default function Dashboard() {
         const res = await fetch(`/api/check-status?id=${dodoPaymentId}&wallet=${userWalletStr}&t=${timestamp}`, { cache: "no-store" });
         const data = await res.json();
 
-      
         if (data.status === "succeeded") {
           loadedInvoices[pendingIndex].status = "paid";
           loadedInvoices[pendingIndex].id = dodoPaymentId;
@@ -80,7 +80,6 @@ export default function Dashboard() {
           clearInterval(checkPaymentInterval); 
         }
         
-      
       } catch (error) {
         console.error("Failed to verify payment:", error);
       }
@@ -402,7 +401,7 @@ export default function Dashboard() {
                       cURL
                     </div>
                     <pre className="overflow-x-auto mt-2 leading-relaxed">
-<span className="text-pink-400">curl</span> -X POST https://api.subsettle.finance/v1/x402 \ <br/>
+<span className="text-pink-400">curl</span> -X POST https://subsettle-protocol.vercel.app/api/x402 \ <br/>
   -H <span className="text-green-300">"Authorization: Bearer sk_live_sub..."</span> \ <br/>
   -H <span className="text-green-300">"Content-Type: application/json"</span> \ <br/>
   -d <span className="text-yellow-300">{"{"}</span> <br/>
@@ -413,7 +412,7 @@ export default function Dashboard() {
                     </pre>
                   </div>
                   
-           
+            
   <div className="flex items-start gap-2 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 p-3 rounded-lg shadow-inner mb-4">
     <span className="text-base leading-none">⚠️</span>
     <p>
@@ -440,7 +439,7 @@ export default function Dashboard() {
                 <h3 className="text-xl font-bold">On-Chain Settlement Ledger</h3>
               </div>
               
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto max-h-[400px] overflow-y-auto custom-scrollbar">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="bg-black/50 text-zinc-400 text-sm uppercase tracking-wider">

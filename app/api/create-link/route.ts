@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       billing_currency: "USD",
 return_url: "https://subsettle-protocol.vercel.app/dashboard",
     });
-
+         
     return NextResponse.json({ url: session.checkout_url });
     
   } catch (error) {
@@ -44,3 +44,4 @@ return_url: "https://subsettle-protocol.vercel.app/dashboard",
     return NextResponse.json({ error: "Failed to create link" }, { status: 500 });
   }
 }
+
